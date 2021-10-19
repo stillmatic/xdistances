@@ -16,8 +16,11 @@ publish = false
 travis-ci = { repository = "OvalMoney/xdistances" }
 
 [dependencies]
-strsim = "0.8.0"
-pyo3 = { version = "0.6.0-alpha.1", features = ["extension-module"] }
+strsim = "0.10.0"
+
+[dependencies.pyo3]
+version = "0.14.5"
+features = ["extension-module"]
 
 [lib]
 name = "xdistances"

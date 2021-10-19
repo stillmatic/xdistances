@@ -1,7 +1,5 @@
 #![deny(clippy::all)]
-#![feature(specialization)]
 
-#[macro_use]
 extern crate pyo3;
 use pyo3::exceptions;
 use pyo3::prelude::*;
@@ -15,7 +13,7 @@ macro_rules! wrapper {
         fn hamming(a: &str, b: &str) -> PyResult<$type> {
             match strsim::hamming(a, b) {
                 Ok(distance) => Ok(distance),
-                Err(_) => Err(exceptions::ValueError::py_err("Lenght mismatch")),
+                Err(_) => Err(exceptions::PyValueError::new_err("Length mismatch")),
             }
         }
     };
@@ -134,13 +132,13 @@ wrapper! {
 
 #[pymodule]
 fn xdistances(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_wrapped(wrap_function!(hamming))?;
-    m.add_wrapped(wrap_function!(levenshtein))?;
-    m.add_wrapped(wrap_function!(osa_distance))?;
-    m.add_wrapped(wrap_function!(damerau_levenshtein))?;
-    m.add_wrapped(wrap_function!(normalized_levenshtein))?;
-    m.add_wrapped(wrap_function!(normalized_damerau_levenshtein))?;
-    m.add_wrapped(wrap_function!(jaro))?;
-    m.add_wrapped(wrap_function!(jaro_winkler))?;
+    m.add_wrapped(wrap_pyfunction!(hamming))?;
+    m.add_wrapped(wrap_pyfunction!(levenshtein))?;
+    m.add_wrapped(wrap_pyfunction!(osa_distance))?;
+    m.add_wrapped(wrap_pyfunction!(damerau_levenshtein))?;
+    m.add_wrapped(wrap_pyfunction!(normalized_levenshtein))?;
+    m.add_wrapped(wrap_pyfunction!(normalized_damerau_levenshtein))?;
+    m.add_wrapped(wrap_pyfunction!(jaro))?;
+    m.add_wrapped(wrap_pyfunction!(jaro_winkler))?;
     Ok(())
 }
