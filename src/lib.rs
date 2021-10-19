@@ -17,6 +17,16 @@ macro_rules! wrapper {
             }
         }
     };
+    ($(#[$doc:meta])* generic_hamming -> $type:ty) => {
+        $(#[$doc])*
+        #[pyfunction]
+        fn generic_hamming(a: &str, b: &str) -> PyResult<$type> {
+            match strsim::generic_hamming(a, b) {
+                Ok(distance) => Ok(distance),
+                Err(_) => Err(exceptions::PyValueError::new_err("Length mismatch")),
+            }
+        }
+    };
     ($(#[$doc:meta])* $name:ident -> $type:ty) => {
         $(#[$doc])*
         #[pyfunction]
@@ -36,8 +46,22 @@ wrapper! {
     /// :param str b: string to compare
     /// :return: distance
     /// :rtype: int
-    /// :raises ValueError: if a and b have a different lenghts
+    /// :raises ValueError: if a and b have a different lengths
     hamming -> usize
+}
+
+wrapper! {
+    /// generic_hamming(a, b)
+    ///
+    /// Calculates the number of positions in the two strings where the characters
+    /// differ. Returns an error if the strings have different lengths.
+    ///
+    /// :param str a: base string
+    /// :param str b: string to compare
+    /// :return: distance
+    /// :rtype: int
+    /// :raises ValueError: if a and b have a different lengths
+    generic_hamming -> usize
 }
 
 wrapper! {
@@ -130,6 +154,19 @@ wrapper! {
     jaro_winkler -> f64
 }
 
+wrapper! {
+    /// sorensen_dice(a, b)
+    ///
+    /// Calculates a Sørensen-Dice similarity distance using bigrams. See 
+    /// http://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient.
+    ///
+    /// :param str a: base string
+    /// :param str b: string to compare
+    /// :return: similarity
+    /// :rtype: float
+    sorensen_dice -> f64
+}
+
 #[pymodule]
 fn xdistances(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(hamming))?;
@@ -140,5 +177,6 @@ fn xdistances(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(normalized_damerau_levenshtein))?;
     m.add_wrapped(wrap_pyfunction!(jaro))?;
     m.add_wrapped(wrap_pyfunction!(jaro_winkler))?;
+    m.add_wrapped(wrap_pyfunction!(sorensen_dice))?;
     Ok(())
 }
