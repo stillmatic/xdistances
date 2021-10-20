@@ -70,27 +70,39 @@ wild that every command is so much slower on the intel than the m1 (thank you ap
 
 ```python
 import xdistances
+import Levenshtein
+from joblib import Parallel, delayed
 
-n_iters = 1_000_000
+n_iters = 100_000
 
 test_left = [('Thorkel')] * n_iters
 test_right = [('Thorgier')] * n_iters
 
-%timeit _ = xdistances.levenshtein_parallel(test_left, test_right)
+print("parallel rust")
+%timeit -n20 _ = xdistances.levenshtein_parallel(test_left, test_right)
 
-%timeit _ = [xdistances.levenshtein('Thorkel', 'Thorgier') for i in range(n_iters)]
+print("sequential rust")
+%timeit -n20 _ = [xdistances.levenshtein('Thorkel', 'Thorgier') for i in range(n_iters)]
+
+print("sequential Python")
+%timeit -n20 _ = [Levenshtein.distance('Thorkel', 'Thorgier') for i in range(n_iters)]
+
+print("parallel Python")
+# apparently this is not threadsafe.
+%timeit -n20 _ = Parallel(n_jobs=-1)(delayed(Levenshtein.distance)('Thorkel', 'Thorgier') for i in range(n_iters))
 ```
 
-with n_iters = 1000
+run with `n_iters = 100_000`
 
 ```
-34 µs ± 2.34 µs per loop (mean ± std. dev. of 7 runs, 10000 loops each)
-204 µs ± 726 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+parallel rust
+5.73 ms ± 169 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+sequential rust
+21.8 ms ± 302 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+sequential Python
+12.6 ms ± 360 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+parallel Python
+207 ms ± 2.62 ms per loop (mean ± std. dev. of 7 runs, 20 loops each)
 ```
 
-with n_iters = 10000
-
-```
-18 µs ± 7.92 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
-2.17 ms ± 40.1 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
-```
+this is probably not a fair comparison vs parallel python since delegating to workers has a fixed overhead that potentially is amortized over more iterations. but this is pretty sweet, easy 2x improvement.
