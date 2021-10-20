@@ -5,6 +5,7 @@ use pyo3::exceptions;
 use pyo3::prelude::*;
 
 extern crate strsim;
+extern crate triple_accel;
 
 macro_rules! wrapper {
     ($(#[$doc:meta])* hamming -> $type:ty) => {
@@ -12,16 +13,6 @@ macro_rules! wrapper {
         #[pyfunction]
         fn hamming(a: &str, b: &str) -> PyResult<$type> {
             match strsim::hamming(a, b) {
-                Ok(distance) => Ok(distance),
-                Err(_) => Err(exceptions::PyValueError::new_err("Length mismatch")),
-            }
-        }
-    };
-    ($(#[$doc:meta])* generic_hamming -> $type:ty) => {
-        $(#[$doc])*
-        #[pyfunction]
-        fn generic_hamming(a: &str, b: &str) -> PyResult<$type> {
-            match strsim::generic_hamming(a, b) {
                 Ok(distance) => Ok(distance),
                 Err(_) => Err(exceptions::PyValueError::new_err("Length mismatch")),
             }
@@ -36,6 +27,11 @@ macro_rules! wrapper {
     };
 }
 
+#[pyfunction]
+fn levenshtein_simd(a: &str, b: &str) -> u32 {
+    triple_accel::levenshtein_exp(a.as_bytes(), b.as_bytes())
+}
+
 wrapper! {
     /// hamming(a, b)
     ///
@@ -48,20 +44,6 @@ wrapper! {
     /// :rtype: int
     /// :raises ValueError: if a and b have a different lengths
     hamming -> usize
-}
-
-wrapper! {
-    /// generic_hamming(a, b)
-    ///
-    /// Calculates the number of positions in the two strings where the characters
-    /// differ. Returns an error if the strings have different lengths.
-    ///
-    /// :param str a: base string
-    /// :param str b: string to compare
-    /// :return: distance
-    /// :rtype: int
-    /// :raises ValueError: if a and b have a different lengths
-    generic_hamming -> usize
 }
 
 wrapper! {
@@ -178,5 +160,6 @@ fn xdistances(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(jaro))?;
     m.add_wrapped(wrap_pyfunction!(jaro_winkler))?;
     m.add_wrapped(wrap_pyfunction!(sorensen_dice))?;
+    m.add_function(wrap_pyfunction!(levenshtein_simd, m)?)?;
     Ok(())
 }

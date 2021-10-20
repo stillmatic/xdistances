@@ -17,6 +17,8 @@ travis-ci = { repository = "OvalMoney/xdistances" }
 
 [dependencies]
 strsim = "0.10.0"
+triple_accel = "*"
+
 
 [dependencies.pyo3]
 version = "0.14.5"

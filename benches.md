@@ -22,6 +22,14 @@ In [8]: %%timeit
    ...:
    ...: _ = Levenshtein.distance('Thorkel', 'Thorgier')
 104 ns ± 0.22 ns per loop (mean ± std. dev. of 7 runs, 10000000 loops each)
+
+In [3]: %%timeit
+   ...: xdistances.levenshtein_simd(b'Thorkel', b'Thorgier')
+   ...:
+   ...:
+549 ns ± 10.8 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
 ```
 
-seems about the same speed or worse than the C implementation, and more variance in the runs.
+C seems hard to beat
+
+note that these were run on an M1 macbook pro and that they may not be representative of intel architecture. especially the SIMD, don't think M1 supports that?
