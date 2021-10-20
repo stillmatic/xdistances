@@ -5,9 +5,10 @@ use pyo3::exceptions;
 use pyo3::prelude::*;
 use rayon::prelude::*;
 use paste::paste;
+use eddie::*;
 
 extern crate strsim;
-extern crate triple_accel;
+extern crate eddie;
 
 macro_rules! wrapper {
     ($(#[$doc:meta])* hamming -> $type:ty) => {
@@ -47,9 +48,23 @@ macro_rules! parallel_wrapper {
 }
 
 #[pyfunction]
-fn levenshtein_simd(a: &str, b: &str) -> u32 {
-    triple_accel::levenshtein_exp(a.as_bytes(), b.as_bytes())
+fn eddie_levenshtein_distance (left: &str, right: &str) -> PyResult<usize> {
+    let lev: Levenshtein = Levenshtein::new();
+    Ok(lev.distance(left, right))
 }
+
+#[pyfunction]
+fn eddie_levenshtein_distance_parallel (left: Vec<&str>, right: Vec<&str>) -> PyResult<Vec<usize>> {
+    let lev: Levenshtein = Levenshtein::new();
+    Ok(
+        left.iter()
+        .zip(right)
+        .map(|(x, y)| lev.distance(x, y))
+        .collect()
+    )
+}
+
+
 
 wrapper! {
     /// hamming(a, b)
@@ -290,6 +305,7 @@ fn xdistances(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(jaro_parallel))?;
     m.add_wrapped(wrap_pyfunction!(jaro_winkler_parallel))?;
     m.add_wrapped(wrap_pyfunction!(sorensen_dice_parallel))?;
-    m.add_function(wrap_pyfunction!(levenshtein_simd, m)?)?;
+    m.add_function(wrap_pyfunction!(eddie_levenshtein_distance, m)?)?;
+    m.add_function(wrap_pyfunction!(eddie_levenshtein_distance_parallel, m)?)?;
     Ok(())
 }

@@ -17,7 +17,7 @@ travis-ci = { repository = "OvalMoney/xdistances" }
 
 [dependencies]
 strsim = "0.10.0"
-triple_accel = "*"
+eddie = "0.4.2"
 rayon = "*"
 paste = "1.0.5"
 

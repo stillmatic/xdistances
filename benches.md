@@ -71,7 +71,7 @@ wild that every command is so much slower on the intel than the m1 (thank you ap
 ```python
 import xdistances
 import Levenshtein
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 
 n_iters = 100_000
 
@@ -84,6 +84,12 @@ print("parallel rust")
 print("sequential rust")
 %timeit -n20 _ = [xdistances.levenshtein('Thorkel', 'Thorgier') for i in range(n_iters)]
 
+print("sequential rust - eddie")
+%timeit -n20 _ = [xdistances.eddie_levenshtein_distance('Thorkel', 'Thorgier') for i in range(n_iters)]
+
+print("parallel rust - eddie")
+%timeit -n20 _ = xdistances.eddie_levenshtein_distance_parallel(test_left, test_right)
+
 print("sequential Python")
 %timeit -n20 _ = [Levenshtein.distance('Thorkel', 'Thorgier') for i in range(n_iters)]
 
@@ -92,17 +98,33 @@ print("parallel Python")
 %timeit -n20 _ = Parallel(n_jobs=-1)(delayed(Levenshtein.distance)('Thorkel', 'Thorgier') for i in range(n_iters))
 ```
 
-run with `n_iters = 100_000`
+run with `n_iters = 100_000` on m1
 
 ```
 parallel rust
 5.73 ms ± 169 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
 sequential rust
 21.8 ms ± 302 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+sequential rust - eddie
+24.9 ms ± 713 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+parallel rust - eddie
+6.69 ms ± 610 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
 sequential Python
 12.6 ms ± 360 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
 parallel Python
 207 ms ± 2.62 ms per loop (mean ± std. dev. of 7 runs, 20 loops each)
 ```
+
+run with `n_iters = 100_000` on intel
+
+```
+parallel rust
+11.3 ms ± 90.2 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+sequential rust
+40.6 ms ± 1.17 ms per loop (mean ± std. dev. of 7 runs, 20 loops each)
+sequential Python
+20.8 ms ± 63.3 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
+```
+
 
 this is probably not a fair comparison vs parallel python since delegating to workers has a fixed overhead that potentially is amortized over more iterations. but this is pretty sweet, easy 2x improvement.
