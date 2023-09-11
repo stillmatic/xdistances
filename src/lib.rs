@@ -31,7 +31,7 @@ macro_rules! wrapper {
     };
 }
 
-macro_rules! parallel_wrapper {
+macro_rules! parallel_wrapper {        
     ($(#[$doc:meta])* $name:ident -> $type:ty) => {
         paste! {
             $(#[$doc])*
@@ -243,19 +243,6 @@ parallel_wrapper! {
 }
 
 parallel_wrapper! {
-    /// hamming_parallel(a, b)
-    ///
-    /// Calculates the number of positions in the two strings where the characters
-    /// differ. Returns an error if the strings have different lengths. Operates in parallel over two lists of strings.
-    ///
-    /// :param Vec<&str> a: base strings
-    /// :param Vec<&str> b: strings to compare
-    /// :return: distance
-    /// :rtype: int
-    hamming -> Vec<usize>
-}
-
-parallel_wrapper! {
     /// osa_distance(a, b)
     ///
     /// Like Levenshtein but allows for adjacent transpositions. Each substring can
@@ -358,20 +345,6 @@ max_similarity_wrapper! {
     /// :return: vector of maximum similarities
     /// :rtype: Vec<usize>
     levenshtein -> usize
-}
-
-max_similarity_wrapper! {
-    /// hamming_max_similarity(targets, source_strings)
-    ///
-    /// Calculates the maximum Hamming distance between each target string
-    /// and a list of "known bad strings". The Hamming distance measures the number
-    /// of positions at which the corresponding symbols are different.
-    ///
-    /// :param Vec<str> targets: list of target strings
-    /// :param Vec<str> source_strings: list of source strings
-    /// :return: vector of maximum similarities
-    /// :rtype: Vec<usize>
-    hamming -> usize
 }
 
 max_similarity_wrapper! {
@@ -489,20 +462,6 @@ min_similarity_wrapper! {
     levenshtein -> usize
 }
 
-
-min_similarity_wrapper! {
-    /// hamming_min_similarity(targets, source_strings)
-    ///
-    /// Calculates the minimum Hamming distance between each target string
-    /// and a list of "known bad strings". The Hamming distance measures the number
-    /// of positions at which the corresponding symbols are different.
-    ///
-    /// :param Vec<str> targets: list of target strings
-    /// :param Vec<str> source_strings: list of source strings
-    /// :return: vector of minimum similarities
-    /// :rtype: Vec<usize>
-    hamming -> usize
-}
 
 min_similarity_wrapper! {
     /// osa_distance_min_similarity(targets, source_strings)
