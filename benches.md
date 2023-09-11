@@ -137,6 +137,50 @@ test_left = [('Thorgier'), ('Thornulf'), ('Thoracic')]
 print("parallel rust")
 %timeit -n20 _ = xdistances.levenshtein_max_similarity(test_left, test_right)
 
+%timeit -n200 _ = min(xdistances.levenshtein_parallel(["hamming"] * 3, ["hammers", "hammer", "ham"]))
+43.1 µs ± 2.86 µs per loop (mean ± std. dev. of 7 runs, 200 loops each)
+%timeit -n200 _ = xdistances.levenshtein_min_similarity(["hamming"], ["hammers", "hammer", "ham"])
+433 ns ± 37.8 ns per loop (mean ± std. dev. of 7 runs, 200 loops each)
+```
+
+```python
+import timeit
+import random
+import string
+import xdistances
+
+# Function to generate a random string of a given length
+def random_string(length):
+    return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+
+# Generate random data
+num_targets = 10  # Number of target strings
+target_length = 8  # Length of each target string
+num_sources = 100  # Number of source strings
+source_length = 8  # Length of each source string
+target_str = random_string(target_length)
+
+targets = [target_str] * num_targets
+source_strings = [random_string(source_length) for _ in range(num_sources)]
+
+# Benchmark functions using generated random data
+def levenshtein_parallel_benchmark():
+    a = min(xdistances.levenshtein_parallel(targets, source_strings))
+
+def levenshtein_min_similarity_benchmark():
+    _ = xdistances.levenshtein_min_similarity([target_str], source_strings)
+
+# Number of loops for timeit to run
+num_loops = 200
+
+# Measure time for levenshtein_parallel
+parallel_time = 1000 * timeit.timeit("levenshtein_parallel_benchmark()", setup="from __main__ import levenshtein_parallel_benchmark", number=num_loops)
+print(f"Time taken for levenshtein_parallel: {parallel_time:.6f} milliseconds")
+
+# Measure time for levenshtein_min_similarity
+min_similarity_time = 1000 * timeit.timeit("levenshtein_min_similarity_benchmark()", setup="from __main__ import levenshtein_min_similarity_benchmark", number=num_loops)
+print(f"Time taken for levenshtein_min_similarity: {min_similarity_time:.6f} milliseconds")
+
 
 ```
 
