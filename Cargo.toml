@@ -22,10 +22,9 @@ rayon = "*"
 paste = "1.0.5"
 
 [dependencies.pyo3]
-version = "0.14.5"
+version = "0.19.2"
 features = ["extension-module"]
 
 [lib]
 name = "xdistances"
 crate-type = ["cdylib"]
-
