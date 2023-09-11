@@ -45,26 +45,26 @@ on a 8 core intel, which should have avx512?
 ```
 In [3]: %%timeit
    ...: _ = xdistances.levenshtein_simd('Thorkel', 'Thorgier')
-   ...: 
-   ...: 
-   ...: 
+   ...:
+   ...:
+   ...:
 437 ns ± 0.547 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
 
 In [4]: %%timeit
    ...: _ = xdistances.levenshtein('Thorkel', 'Thorgier')
-   ...: 
-   ...: 
-   ...: 
+   ...:
+   ...:
+   ...:
 368 ns ± 1.68 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
 
 In [2]: %%timeit
    ...: _ = Levenshtein.distance('Thorkel', 'Thorgier')
-   ...: 
-   ...: 
+   ...:
+   ...:
 175 ns ± 0.27 ns per loop (mean ± std. dev. of 7 runs, 10000000 loops each)
 ```
 
-wild that every command is so much slower on the intel than the m1 (thank you apple), but also weirdly the simd heuristic is not performing better. 
+wild that every command is so much slower on the intel than the m1 (thank you apple), but also weirdly the simd heuristic is not performing better.
 
 ## parallelism
 
@@ -126,5 +126,18 @@ sequential Python
 20.8 ms ± 63.3 µs per loop (mean ± std. dev. of 7 runs, 20 loops each)
 ```
 
+```
+import xdistances
+
+n_iters = 100_000
+
+test_right = [('Thorkel')] * n_iters
+test_left = [('Thorgier'), ('Thornulf'), ('Thoracic')]
+
+print("parallel rust")
+%timeit -n20 _ = xdistances.levenshtein_max_similarity(test_left, test_right)
+
+
+```
 
 this is probably not a fair comparison vs parallel python since delegating to workers has a fixed overhead that potentially is amortized over more iterations. but this is pretty sweet, easy 2x improvement.
